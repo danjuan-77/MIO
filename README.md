@@ -13,6 +13,7 @@ MIO: A Foundation Model on Multimodal Tokens
 <a href="https://arxiv.org/abs/2409.17692">
   <img src="https://img.shields.io/badge/Paper-arXiv-red" alt="Paper Arxiv Badge">
 </a>
+
 <a href="https://huggingface.co/m-a-p/MIO-7B-Base">
   <img src="https://img.shields.io/badge/Hugging%20Face-MIO--7B--Base-yellow" alt="Hugging Face MIO-7B-Base Badge">
 </a>
@@ -54,7 +55,6 @@ guideline generation, instructional image editing, etc.
 ![advanced_abilities.jpg](./assets/advanced_abilities.jpg)
 ![basic_abilities_0.jpg](./assets/basic_abilities_0.jpg)
 ![basic_abilities_1.jpg](./assets/basic_abilities_1.jpg)
-![mmicl_mmcot.jpg](./assets/mmicl_mmcot.jpg)
 
 ## Feature Checklist
 
