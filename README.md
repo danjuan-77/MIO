@@ -126,11 +126,10 @@ python infer.py
 ### Citation
 
 ```bibtex
-@inproceedings{Wang2024mio,
-  title  = {MIO: A Foundation Model on Multimodal Tokens},
-  author = {Zekun Wang and Kang Zhu and Chunpu Xu and Wangchunshu Zhou and Jiaheng Liu and Yibo Zhang and Jiashuo WANG and Ning Shi and Ge Zhang and Siyu Li and Yizhi LI and Yuanxing Zhang and Ke Xu and Wenhao Huang and Jie Fu},
-  year   = {2024},
-  url    = {https://openreview.net/forum?id=LEW0ljNRZ6&noteId=LEW0ljNRZ6},
-  pdf    = {https://openreview.net/pdf?id=LEW0ljNRZ6&noteId=LEW0ljNRZ6}
+@article{wang2024mio,
+  title   = {MIO: A Foundation Model on Multimodal Tokens},
+  author  = {Zekun Wang and King Zhu and Chunpu Xu and Wangchunshu Zhou and Jiaheng Liu and Yibo Zhang and Jiashuo Wang and Ning Shi and Siyu Li and Yizhi Li and Haoran Que and Zhaoxiang Zhang and Yuanxing Zhang and Ge Zhang and Ke Xu and Jie Fu and Wenhao Huang},
+  year    = {2024},
+  journal = {arXiv preprint arXiv: 2409.17692}
 }
 ```
