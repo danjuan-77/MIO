@@ -8,8 +8,7 @@ omegaconf==2.3.0
 opencv_python==4.7.0.72
 opencv_python_headless==4.8.1.78
 packaging==24.2
-Pillow==10.1.0
-Pillow==11.0.0
+Pillow==11.3.0
 scenedetect==0.6.4
 scipy==1.7.3
 spacy==3.8.2
