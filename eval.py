@@ -2,7 +2,6 @@ from email.mime import audio
 import os
 import tempfile
 import traceback
-tempfile.tempdir = "/share/nlp/tuwenming/projects/HAVIB/tmp"
 from pathlib import Path
 
 from tokenization_mio import MIOTokenizer
@@ -12,6 +11,7 @@ import argparse
 import json
 from tqdm import tqdm
 
+tempfile.tempdir = "/share/nlp/tuwenming/projects/HAVIB/tmp"
 
 
 # 本文件用于保存所有的定义
