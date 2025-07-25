@@ -13,8 +13,8 @@ scenedetect==0.6.4
 scipy==1.7.3
 spacy==3.8.2
 timm==1.0.11
-torch==2.1.2+cu118
-torchaudio==2.1.2+cu118
-torchvision==0.16.2+cu118
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
 transformers==4.34.0
 xformers==0.0.28.post3
