@@ -2,7 +2,7 @@ from tokenization_mio import MIOTokenizer
 from transformers import AutoModelForCausalLM
 import torch
 
-model_name_or_path = 'models/MIO-7B-Instruct' # TODO: change your model path here.
+model_name_or_path = '/share/nlp/tuwenming/models/m-a-p/MIO-7B-Instruct' # TODO: change your model path here.
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 mio_model = AutoModelForCausalLM.from_pretrained(
