@@ -170,6 +170,11 @@ class MIOTokenizer():
         vocab_size = self.speech_tokenizer.config.get('codebook_size')  # 1024
         for speech_path in speech_paths:
             wav, sr = torchaudio.load(speech_path)
+            
+            # Convert stereo to mono if necessary
+            if wav.shape[0] > 1:
+                wav = wav.mean(dim=0, keepdim=True)  # Average all channels to create mono
+            
             wav = wav.unsqueeze(0).to(self.device)
             if sr != self.speech_tokenizer.sample_rate:
                 wav = torchaudio.functional.resample(wav, sr, self.speech_tokenizer.sample_rate)
