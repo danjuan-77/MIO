@@ -10,6 +10,8 @@ import torch
 import argparse
 import json
 from tqdm import tqdm
+# 添加导入utils模块
+from utils import extract_frames
 
 tempfile.tempdir = "/share/nlp/tuwenming/projects/HAVIB/tmp"
 
@@ -220,16 +222,31 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     
-    # model_name_or_path = args.model_path # TODO: change your model path here.
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_name_or_path = args.model_path # TODO: change your model path here.
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # mio_model = AutoModelForCausalLM.from_pretrained(
-    #     model_name_or_path,
-    #     torch_dtype=torch.float16,
-    #     device_map="auto",
-    # ).half().eval()
-    # mio_tokenizer = MIOTokenizer(model_name_or_path, device)
+    mio_model = AutoModelForCausalLM.from_pretrained(
+        model_name_or_path,
+        torch_dtype=torch.float16,
+        device_map="auto",
+    ).half().eval()
+    mio_tokenizer = MIOTokenizer(model_name_or_path, device)
     
+    # 设置生成配置
+    generation_config = {
+        "num_beams": 5,
+        "do_sample": False,  # False if num_beams > 1 else True
+        "temperature": 1.0,
+        "top_p": 0.7,
+        "repetition_penalty": 1.0,
+        "max_new_tokens": 512,
+        "length_penalty": 1.0,
+        "top_k": 0,
+        "pad_token_id": mio_tokenizer.tokenizer.pad_token_id,
+        "eos_token_id": 7 if "Instruct" in model_name_or_path else mio_tokenizer.tokenizer.eos_token_id,
+        "num_return_sequences": 1,
+        "guidance_scale": None,
+    }
     
     task_path = args.task_path
     task_name = f"L{task_path.rsplit('/', 1)[0][-1]}_{task_path.rsplit('/', 1)[-1]}"
@@ -280,3 +297,138 @@ if __name__ == "__main__":
             if data['video'] else None
         )
         print(f">>> text input=:{text}")
+        
+        output = None
+        
+        try:
+            # 根据输入内容判断是哪种任务，然后调用不同的函数进行推理
+            batch_image_paths = None
+            batch_speech_paths = None
+            conversations = None
+            
+            # 处理视频输入 - 如果有视频，提取帧
+            if video:
+                video_frames_dir = os.path.join(tempfile.tempdir, f"frames_{_id}")
+                video_frames = extract_frames(video, video_frames_dir, force_uniform=True)
+                # 将视频帧添加到图像列表中
+                if image_list:
+                    image_list.extend(video_frames)
+                else:
+                    image_list = video_frames
+            
+            # case1: audio + text
+            if audio_list and not image_list:
+                print(">>> Processing case1: audio + text")
+                batch_speech_paths = [audio_list]
+                conversations = [
+                    [{"role": "user", "content": f"<speech_placeholder_0>\n{text}"}]
+                ]
+                
+            # case2: image + text
+            elif image_list and not audio_list:
+                print(">>> Processing case2: image + text")
+                batch_image_paths = [image_list]
+                # 构造图像占位符
+                image_placeholders = "".join([f"<image_placeholder_{i}>" for i in range(len(image_list))])
+                conversations = [
+                    [{"role": "user", "content": f"{image_placeholders}\n{text}"}]
+                ]
+                
+            # case3: video + text (已在上面处理，视频转换为图像列表)
+            # 这种情况会被case2捕获
+            
+            # case4: video + audio + text
+            # case5: image list + audio + text  
+            # case6: image + audio list + text
+            elif image_list and audio_list:
+                print(">>> Processing case4/5/6: multimodal with image and audio")
+                batch_image_paths = [image_list]
+                batch_speech_paths = [audio_list]
+                
+                # 构造占位符
+                image_placeholders = "".join([f"<image_placeholder_{i}>" for i in range(len(image_list))])
+                speech_placeholders = "".join([f"<speech_placeholder_{i}>" for i in range(len(audio_list))])
+                
+                conversations = [
+                    [{"role": "user", "content": f"{image_placeholders}{speech_placeholders}\n{text}"}]
+                ]
+                
+            # 纯文本情况
+            else:
+                print(">>> Processing pure text")
+                conversations = [
+                    [{"role": "user", "content": text}]
+                ]
+            
+            # 执行推理
+            if "Instruct" in model_name_or_path:
+                # 使用Instruct模型的chat模板
+                inputs = mio_tokenizer.apply_chat_template(
+                    conversations, 
+                    batch_image_paths=batch_image_paths, 
+                    batch_speech_paths=batch_speech_paths,
+                    mode='std',  # 默认使用标准模式
+                    padding=True, 
+                    truncation=True, 
+                    max_length=2048, 
+                    return_tensors='pt'
+                )
+            else:
+                # 使用Base模型
+                # 将对话转换为单个prompt
+                prompt = conversations[0][0]["content"]
+                inputs = mio_tokenizer(
+                    [prompt], 
+                    batch_image_paths=batch_image_paths, 
+                    batch_speech_paths=batch_speech_paths, 
+                    padding=True, 
+                    truncation=True, 
+                    max_length=3000, 
+                    return_tensors='pt'
+                )
+            
+            input_ids = inputs['input_ids'].to(device)
+            attention_mask = inputs['attention_mask'].to(device)
+            
+            # 生成输出
+            with torch.no_grad():
+                model_output = mio_model.generate(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    **generation_config
+                )
+            
+            # 解码输出
+            generated_sequences, decoded_image_paths, decoded_speech_paths = (
+                mio_tokenizer.detokenize(
+                    model_output,
+                    output_image_dir=f"generated_images/{_id}",
+                    output_speech_dir=f"generated_speeches/{_id}",
+                    extract_assistant=True if "Instruct" in model_name_or_path else False,
+                    save_images=False,
+                    save_speeches=False
+                )
+            )
+            
+            # 获取生成的文本
+            if generated_sequences:
+                output = generated_sequences[0].strip()
+            else:
+                output = "Failed to generate response"
+                
+        except Exception as e:
+            print(f">>> Error processing sample {_id}: {str(e)}")
+            traceback.print_exc()
+            output = f"Error: {str(e)}"
+        
+        pred_record = {
+            "task": _task,
+            "subtask": _subtask,
+            "id": _id,
+            "predict": output,
+        }
+        predictions.append(pred_record)
+        print('>>> ans=:', pred_record)
+        
+    with open(save_prediction_json, 'w', encoding='utf-8') as json_file:
+        json.dump(predictions, json_file, ensure_ascii=False, indent=4)
