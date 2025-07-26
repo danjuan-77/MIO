@@ -286,7 +286,7 @@ if __name__ == "__main__":
         text = data['text']
         audio_list = (
             [get_real_path(task_path, p) for p in data["audio_list"]]
-            if data["audio_list"] else None
+            if data["audio_ list"] else None
         )
         image_list = (
             [get_real_path(task_path, p) for p in data["image_list"]]
