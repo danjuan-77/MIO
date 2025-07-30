@@ -234,8 +234,8 @@ if __name__ == "__main__":
     
     # 设置生成配置 - 针对纯文本生成优化，避免生成多模态token
     generation_config = {
-        "num_beams": 5,
-        "do_sample": False,  # False if num_beams > 1 else True
+        "num_beams": 1,
+        "do_sample": True,  # False if num_beams > 1 else True
         "temperature": 1.0,
         "top_p": 0.7,
         "repetition_penalty": 1.0,  # 对于文本生成，保持1.0
