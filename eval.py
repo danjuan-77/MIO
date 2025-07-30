@@ -236,9 +236,9 @@ if __name__ == "__main__":
     generation_config = {
         "num_beams": 1,
         "do_sample": True,  # False if num_beams > 1 else True
-        "temperature": 1.0,
+        "temperature": 0.7,
         "top_p": 0.7,
-        "repetition_penalty": 1.0,  # 对于文本生成，保持1.0
+        "repetition_penalty": 1.15,  # 对于文本生成，保持1.0
         "max_new_tokens": 128,  # 减少token数量以避免生成多模态内容
         "length_penalty": 1.0,
         "top_k": 0,
