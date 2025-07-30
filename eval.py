@@ -232,14 +232,14 @@ if __name__ == "__main__":
     ).half().eval()
     mio_tokenizer = MIOTokenizer(model_name_or_path, device)
     
-    # 设置生成配置
+    # 设置生成配置 - 针对纯文本生成优化，避免生成多模态token
     generation_config = {
         "num_beams": 5,
         "do_sample": False,  # False if num_beams > 1 else True
         "temperature": 1.0,
         "top_p": 0.7,
-        "repetition_penalty": 1.0,
-        "max_new_tokens": 512,
+        "repetition_penalty": 1.0,  # 对于文本生成，保持1.0
+        "max_new_tokens": 256,  # 减少token数量以避免生成多模态内容
         "length_penalty": 1.0,
         "top_k": 0,
         "pad_token_id": mio_tokenizer.tokenizer.pad_token_id,
@@ -321,7 +321,7 @@ if __name__ == "__main__":
                 print(">>> Processing case1: audio + text")
                 batch_speech_paths = [audio_list]
                 conversations = [
-                    [{"role": "user", "content": f"<speech_placeholder_0>\n{text}"}]
+                    [{"role": "user", "content": f"<speech_placeholder_0>\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
                 ]
                 
             # case2: image + text
@@ -331,7 +331,7 @@ if __name__ == "__main__":
                 # 构造图像占位符
                 image_placeholders = "".join([f"<image_placeholder_{i}>" for i in range(len(image_list))])
                 conversations = [
-                    [{"role": "user", "content": f"{image_placeholders}\n{text}"}]
+                    [{"role": "user", "content": f"{image_placeholders}\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
                 ]
                 
             # case3: video + text (已在上面处理，视频转换为图像列表)
@@ -350,14 +350,14 @@ if __name__ == "__main__":
                 speech_placeholders = "".join([f"<speech_placeholder_{i}>" for i in range(len(audio_list))])
                 
                 conversations = [
-                    [{"role": "user", "content": f"{image_placeholders}{speech_placeholders}\n{text}"}]
+                    [{"role": "user", "content": f"{image_placeholders}{speech_placeholders}\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
                 ]
                 
             # 纯文本情况
             else:
                 print(">>> Processing pure text")
                 conversations = [
-                    [{"role": "user", "content": text}]
+                    [{"role": "user", "content": f"{text}\nPlease provide your answer in text only, do not generate speech or images."}]
                 ]
             
             # 执行推理
