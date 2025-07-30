@@ -321,7 +321,7 @@ if __name__ == "__main__":
                 print(">>> Processing case1: audio + text")
                 batch_speech_paths = [audio_list]
                 conversations = [
-                    [{"role": "user", "content": f"<speech_placeholder_0>\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
+                    [{"role": "user", "content": f"<speech_placeholder_0>\n{text}\n\nIMPORTANT: Respond with text only. Do not generate any audio, speech, images, or special tokens. Only provide a plain text answer."}]
                 ]
                 
             # case2: image + text
@@ -331,7 +331,7 @@ if __name__ == "__main__":
                 # 构造图像占位符
                 image_placeholders = "".join([f"<image_placeholder_{i}>" for i in range(len(image_list))])
                 conversations = [
-                    [{"role": "user", "content": f"{image_placeholders}\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
+                    [{"role": "user", "content": f"{image_placeholders}\n{text}\n\nIMPORTANT: Respond with text only. Do not generate any audio, speech, images, or special tokens. Only provide a plain text answer."}]
                 ]
                 
             # case3: video + text (已在上面处理，视频转换为图像列表)
@@ -350,14 +350,14 @@ if __name__ == "__main__":
                 speech_placeholders = "".join([f"<speech_placeholder_{i}>" for i in range(len(audio_list))])
                 
                 conversations = [
-                    [{"role": "user", "content": f"{image_placeholders}{speech_placeholders}\n{text}\nPlease provide your answer in text only, do not generate speech or images."}]
+                    [{"role": "user", "content": f"{image_placeholders}{speech_placeholders}\n{text}\n\nIMPORTANT: Respond with text only. Do not generate any audio, speech, images, or special tokens. Only provide a plain text answer."}]
                 ]
                 
             # 纯文本情况
             else:
                 print(">>> Processing pure text")
                 conversations = [
-                    [{"role": "user", "content": f"{text}\nPlease provide your answer in text only, do not generate speech or images."}]
+                    [{"role": "user", "content": f"{text}\n\nIMPORTANT: Respond with text only. Do not generate any audio, speech, images, or special tokens. Only provide a plain text answer."}]
                 ]
             
             # 执行推理
