@@ -370,22 +370,23 @@ if __name__ == "__main__":
                     mode='std',  # 默认使用标准模式
                     padding=True, 
                     truncation=True, 
-                    max_length=2048, 
+                    max_length=3000, 
                     return_tensors='pt'
                 )
             else:
                 # 使用Base模型
                 # 将对话转换为单个prompt
-                prompt = conversations[0][0]["content"]
-                inputs = mio_tokenizer(
-                    [prompt], 
-                    batch_image_paths=batch_image_paths, 
-                    batch_speech_paths=batch_speech_paths, 
-                    padding=True, 
-                    truncation=True, 
-                    max_length=3000, 
-                    return_tensors='pt'
-                )
+                # prompt = conversations[0][0]["content"]
+                # inputs = mio_tokenizer(
+                #     [prompt], 
+                #     batch_image_paths=batch_image_paths, 
+                #     batch_speech_paths=batch_speech_paths, 
+                #     padding=True, 
+                #     truncation=True, 
+                #     max_length=3000, 
+                #     return_tensors='pt'
+                # )
+                pass
             
             input_ids = inputs['input_ids'].to(device)
             attention_mask = inputs['attention_mask'].to(device)
